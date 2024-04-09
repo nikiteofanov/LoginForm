@@ -119,6 +119,7 @@
             register.TabIndex = 8;
             register.Text = "Register";
             register.UseVisualStyleBackColor = true;
+            register.Click += register_Click;
             // 
             // label5
             // 
