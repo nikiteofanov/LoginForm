@@ -9,7 +9,7 @@ namespace LoginForm
     public partial class Form1 : Form
     {
 
-        string connection = @"Data Source=LAB108PC18\SQLEXPRESS;Initial Catalog=Miniproject;Integrated Security=True";
+        string connection = @"Data Source=DESKTOP-S3RQ5UI\SQLEXPRESS;Initial Catalog=MiniProject1;Integrated Security=True;Encrypt=False";
         public Form1()
         {
             InitializeComponent();
@@ -17,32 +17,24 @@ namespace LoginForm
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            SqlConnection con = new SqlConnection(connection);
-
-            try
-            {
-                using (SqlCommand cmd = new SqlCommand("INSERT INTO "))
-                {
-                    con.Open();
-
-
-
-
-
-                    con.Close();
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Error: " + ex.Message);
-            }
 
         }
 
         private void login_Click(object sender, EventArgs e)
         {
-            
+            string password = textBox2.Text;
+            string repeatPass = textBox3.Text;
 
+            if (password == repeatPass)
+            {
+                string salt = " ";
+                salt = DateTime.Now.ToString();
+                string hashedPassword2 = hashPassword($"{password}{salt}");
+                //if (hashedPassword2 == )
+                {
+
+                }
+            }
         }
 
         string hashPassword(string password)
@@ -79,12 +71,32 @@ namespace LoginForm
             if ((Regex.IsMatch(password, pattern)) && password == repeatPass)
             {
                 MessageBox.Show("Successful Login!");
+                UserProfiles UserProfiles = new UserProfiles();
+                UserProfiles.ShowDialog();
+                
                 string salt = " ";
                 salt = DateTime.Now.ToString();
-                textBox2.Text = salt;
-                hashPassword($"{password}{salt}");
+                string hashedPassword = hashPassword($"{password}{salt}");
+                string username = textBox1.Text;
                 MessageBox.Show(hashPassword(password));
+
+                string query = "INSERT INTO Users (Username, DateAndTime, Password) VALUES (@Username, @DateAndTime, @Password)";
+
+                SqlConnection con = new SqlConnection(connection);
+
+                using (SqlCommand command = new SqlCommand(query, con))
+                {
+                    con.Open();
+                    // Add parameters to prevent SQL injection
+                    command.Parameters.AddWithValue("@Username", username);
+                    command.Parameters.AddWithValue("@DateAndTime", salt);
+                    command.Parameters.AddWithValue("@Password", hashedPassword); // Store hashed password
+
+                    // Execute the query
+                    int rowsAffected = command.ExecuteNonQuery();
+                    con.Close();
+                }
+            }
             }
         }
-    }
 }
